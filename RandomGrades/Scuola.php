@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>Scuola</title>
+        <title>Random Grades</title>
         <meta lang="it">
     </head>
 
@@ -24,7 +24,6 @@ if (isset($_POST['cognome']) || isset($_POST['nome']) || isset($_POST['materia']
             $campi = explode(",", $line);
 
             if ($campi[0] == $cognome && $campi[1] == $nome && $campi[3] == $materia && $campi[2] == $classe) {
-                echo $line . "<br>";
                 $voto = trim($campi[5]);
                 $somma += floatval($voto);
                 $count++;
@@ -99,12 +98,13 @@ if (isset($_POST['cognome']) || isset($_POST['nome']) || isset($_POST['materia']
         <label>
             <input type="submit" value="Trova"><br>
         </label>
-
-
     </form>
 
 <br>
-<a href="Scuola.php">Come back</a> <br>
+<a href="Scuola.php">☞ Ripeti azione</a><br>
+<a href="Gestion_Voti.php?cognome=<?php echo urlencode($cognome); ?>&nome=<?php echo urlencode($nome); ?>&materia=<?php echo urlencode($materia);?>">
+    ☞ Gestione voti
+</a>
 
 
 </body>
