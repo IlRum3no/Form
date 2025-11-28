@@ -3,137 +3,120 @@
 <body>
 
 <?php
+// Inizio sessione
 session_start();
 
-if (!isset($_SESSION['mosse'])) {
-    $_SESSION['mosse'] = 0;
-}
-if (!isset($_SESSION['difficolta'])) {
-    $_SESSION['difficolta'] = "";
-}
-if (!isset($_SESSION['lista'])) {
-    $_SESSION['lista'] = [];
-}
-if (!isset($_SESSION['arrayprimi'])) {
-    $_SESSION['arrayprimi'] = [];
-}
+// Inizializza variabili di sessione se non esistono
+if (!isset($_SESSION['mosse'])) $_SESSION['mosse'] = 0;
+if (!isset($_SESSION['difficolta'])) $_SESSION['difficolta'] = "";
+if (!isset($_SESSION['lista'])) $_SESSION['lista'] = [];
+if (!isset($_SESSION['arrayprimi'])) $_SESSION['arrayprimi'] = [];
 
-if (isset($_POST['scelta']) && $_POST['scelta'] != "") {
-    $_SESSION['difficolta'] = $_POST['scelta'];
-}
+// Funzioni già presenti nel tuo codice
 function isPrimos($numero){
     $count = 0;
     for ($i=1; $i <= $numero ; $i++) {
-        if ($numero % $i == 0) {
-            $count++;
-        }
+        if ($numero % $i == 0) $count++;
     }
-    if ($count == 2){
-        return true;
-    } else {
-        return false;
-    }
+    return $count == 2;
 }
+
 function creaLista($numeros, &$arrayprimi){
     $traccia = 0;
     $i = 2;
     while($traccia < $numeros) {
-
         if (isPrimos($i)) {
-            $arrayprimi[] = $i;   // aggiunge il numero primo all’array
+            $arrayprimi[] = $i;
             $traccia++;
-
         }
         $i++;
     }
 }
-function incrementaMossa(){
-    if (!isset($_SESSION['mosse'])) {
-        $_SESSION['mosse'] = 0;
-    }
-    $_SESSION['mosse'] += 1;
-}
-function getMosse($numero){
-    echo "Hai fatto: $numero mosse <br>";
-}
+
 function generaNum(&$lista, &$arrayprimi){
     for ($i = 0; $i < count($arrayprimi); $i++){
-        $pescato = array_rand($arrayprimi,3); //funzione che estrae 3 nnumeri casuali dalla funzione
+        $pescato = array_rand($arrayprimi,3);
         $a = $arrayprimi[$pescato[0]];
         $b = $arrayprimi[$pescato[1]];
         $c = $arrayprimi[$pescato[2]];
-
         $moltiplicatore = rand(1, 20);
         $lista[] = $a * $b * $c * $moltiplicatore;
     }
 }
 
-$arrayprimi = $_SESSION['arrayprimi'] ?? [];
-$lista = $_SESSION['lista'] ?? [];
-
-$difficolta = $_SESSION['difficolta'] ?? "";
-
-// Aggiorna difficoltà e lista solo quando si preme "Genera"
-$valore = 0;
-if(isset($_POST['NumMag'])){
-    $valore = $_POST['NumMag'];
+function incrementaMossa(){
+    $_SESSION['mosse'] += 1;
 }
 
-    if (isset($_POST['azione'])) {
-        if ($_POST['azione'] === "Nuova partita") {
-            $_SESSION['mosse'] = 0;
-            $_SESSION['difficolta'] = "";
-            $_SESSION['lista'] = [];
-            $_SESSION['arrayprimi'] = [];
-            // Aggiorna anche le variabili locali per farle riflettere subito
-            $mosse = $_SESSION['mosse'];
+function getMosse($numero){
+    echo "Hai fatto: $numero mosse <br>";
+}
+
+// Carica variabili locali dalla sessione
+$lista = $_SESSION['lista'];
+$arrayprimi = $_SESSION['arrayprimi'];
+$difficolta = $_SESSION['difficolta'];
+
+// Se la lista è vuota, genera una lista di default (difficoltà 3)
+if (empty($lista)) {
+    $_SESSION['arrayprimi'] = [];
+    $_SESSION['lista'] = [];
+    creaLista(3, $_SESSION['arrayprimi']);
+    generaNum($_SESSION['lista'], $_SESSION['arrayprimi']);
+    $lista = $_SESSION['lista'];
+    $arrayprimi = $_SESSION['arrayprimi'];
+    $difficolta = "3";
+}
+
+// Gestione dei pulsanti
+if (isset($_POST['azione'])) {
+    if ($_POST['azione'] === "Nuova partita") {
+        $_SESSION['mosse'] = 0;
+        $_SESSION['difficolta'] = "";
+        $_SESSION['lista'] = [];
+        $_SESSION['arrayprimi'] = [];
+        // Genera nuova lista di default
+        creaLista(3, $_SESSION['arrayprimi']);
+        generaNum($_SESSION['lista'], $_SESSION['arrayprimi']);
+        $lista = $_SESSION['lista'];
+        $arrayprimi = $_SESSION['arrayprimi'];
+        $difficolta = "3";
+    } elseif ($_POST['azione'] === "Cancella") {
+        if (isset($_POST['NumMag']) && is_numeric($_POST['NumMag'])) {
+            $divisore = intval($_POST['NumMag']);
+            if ($divisore != 0 && $divisore != 1) {
+                $nuovaLista = [];
+                foreach ($lista as $valore) {
+                    if ($valore % $divisore != 0) {
+                        $nuovaLista[] = $valore;
+                    }
+                }
+                $lista = $nuovaLista;
+                $_SESSION['lista'] = $lista;
+                incrementaMossa();
+            } else {
+                echo "Attenzione: non puoi dividere per zero/uno!<br>";
+            }
+        } else {
+            echo "Attenzione: inserisci un numero valido!<br>";
+        }
+    } elseif ($_POST['azione'] === "Genera") {
+        if (isset($_POST['scelta']) && $_POST['scelta'] != "") {
+            $_SESSION['difficolta'] = $_POST['scelta'];
             $difficolta = $_SESSION['difficolta'];
+
+            $_SESSION['arrayprimi'] = [];
+            $_SESSION['lista'] = [];
+            $arrayprimi = $_SESSION['arrayprimi'];
+            $lista = $_SESSION['lista'];
+
+            creaLista(intval($difficolta), $_SESSION['arrayprimi']);
+            generaNum($_SESSION['lista'], $_SESSION['arrayprimi']);
             $lista = $_SESSION['lista'];
             $arrayprimi = $_SESSION['arrayprimi'];
-        } elseif ($_POST['azione'] === "Cancella") {
-            // Gestione del pulsante Cancella
-            if (isset($_POST['azione']) && $_POST['azione'] === "Cancella") {
-                if (isset($_POST['NumMag']) && is_numeric($_POST['NumMag'])) {
-                    $divisore = intval($_POST['NumMag']);
-                    if ($divisore != 0) {
-                        // Filtra la lista rimuovendo i numeri divisibili per $divisore
-                        $lista = array_filter($lista, function($val) use ($divisore) {
-                            return $val % $divisore != 0;
-                        });
-                        // Aggiorna la lista nella sessione
-                        $_SESSION['lista'] = $lista;
-
-                        // Incrementa le mosse
-                        incrementaMossa();
-                    } else {
-                        echo "Attenzione: non puoi dividere per zero!<br>";
-                    }
-                } else {
-                    echo "Attenzione: inserisci un numero valido!<br>";
-                }
-            }
-        } elseif ($_POST['azione'] === "Genera") {
-            if (isset($_POST['scelta']) && $_POST['scelta'] != "") {
-                $_SESSION['difficolta'] = $_POST['scelta'];
-                $difficolta = $_SESSION['difficolta'];
-
-                $arrayprimi = [];
-                $lista = [];
-
-                if ($difficolta === "3") {
-                    creaLista(3, $arrayprimi);
-                } elseif ($difficolta === "7") {
-                    creaLista(7, $arrayprimi);
-                } elseif ($difficolta === "21") {
-                    creaLista(21, $arrayprimi);
-                }
-                generaNum($lista, $arrayprimi);
-
-                $_SESSION['arrayprimi'] = $arrayprimi;
-                $_SESSION['lista'] = $lista;
-            }
         }
     }
+}
 ?>
 
 <form action="SminatoreMat.php" method="post">
