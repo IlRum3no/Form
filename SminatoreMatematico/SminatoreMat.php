@@ -1,5 +1,9 @@
 <html>
-    <head>Sminatore Matematico</head>
+    <head>
+        Sminatore Matematico
+        <title>Sminatore Matematico</title>
+    </head>
+    <br>
 <body>
 
 <?php
@@ -12,7 +16,7 @@ if (!isset($_SESSION['difficolta'])) $_SESSION['difficolta'] = "";
 if (!isset($_SESSION['lista'])) $_SESSION['lista'] = [];
 if (!isset($_SESSION['arrayprimi'])) $_SESSION['arrayprimi'] = [];
 
-//FUNZIONI
+//funzioni
 function isPrimos($numero){
     $count = 0;
     for ($i=1; $i <= $numero ; $i++) {
@@ -57,16 +61,6 @@ $lista = $_SESSION['lista'];
 $arrayprimi = $_SESSION['arrayprimi'];
 $difficolta = $_SESSION['difficolta'];
 
-// Se la lista è vuota, genera una lista di default (difficoltà 3)
-if (empty($lista)) {
-    $_SESSION['arrayprimi'] = [];
-    $_SESSION['lista'] = [];
-    creaLista(3, $_SESSION['arrayprimi']);
-    generaNum($_SESSION['lista'], $_SESSION['arrayprimi']);
-    $lista = $_SESSION['lista'];
-    $arrayprimi = $_SESSION['arrayprimi'];
-    $difficolta = "3";
-}
 
 // Gestione dei pulsanti
 if (isset($_POST['azione'])) {
@@ -75,12 +69,7 @@ if (isset($_POST['azione'])) {
         $_SESSION['difficolta'] = "";
         $_SESSION['lista'] = [];
         $_SESSION['arrayprimi'] = [];
-        // Genera nuova lista di default
-        creaLista(3, $_SESSION['arrayprimi']);
-        generaNum($_SESSION['lista'], $_SESSION['arrayprimi']);
-        $lista = $_SESSION['lista'];
-        $arrayprimi = $_SESSION['arrayprimi'];
-        $difficolta = "3";
+        
     } elseif ($_POST['azione'] === "Cancella") {
         if (isset($_POST['NumMag']) && is_numeric($_POST['NumMag'])) {
             $divisore = intval($_POST['NumMag']);
@@ -101,6 +90,7 @@ if (isset($_POST['azione'])) {
             echo "Attenzione: inserisci un numero valido!<br>";
         }
     } elseif ($_POST['azione'] === "Genera") {
+        $_SESSION['mosse'] = 0;
         if (isset($_POST['scelta']) && $_POST['scelta'] != "") {
             $_SESSION['difficolta'] = $_POST['scelta'];
             $difficolta = $_SESSION['difficolta'];
@@ -114,6 +104,8 @@ if (isset($_POST['azione'])) {
             generaNum($_SESSION['lista'], $_SESSION['arrayprimi']);
             $lista = $_SESSION['lista'];
             $arrayprimi = $_SESSION['arrayprimi'];
+        } else if(isset($_POST['scelta'])){
+            echo "Devi prima scegliere la difficolta!<br>";
         }
     }
 }
@@ -139,7 +131,5 @@ if (isset($_POST['azione'])) {
     ?>
     </form>
 </body>
-
-©️Timotei Sorea
+    ©Timotei Sorea
 </html>
-
