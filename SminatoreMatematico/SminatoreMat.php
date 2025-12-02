@@ -12,7 +12,7 @@ if (!isset($_SESSION['difficolta'])) $_SESSION['difficolta'] = "";
 if (!isset($_SESSION['lista'])) $_SESSION['lista'] = [];
 if (!isset($_SESSION['arrayprimi'])) $_SESSION['arrayprimi'] = [];
 
-// Funzioni già presenti nel tuo codice
+//FUNZIONI
 function isPrimos($numero){
     $count = 0;
     for ($i=1; $i <= $numero ; $i++) {
@@ -142,3 +142,4 @@ if (isset($_POST['azione'])) {
 
 ©️Timotei Sorea
 </html>
+
